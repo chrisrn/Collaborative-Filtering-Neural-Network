@@ -1,6 +1,11 @@
 ## Collaborative filtering
 
 ### Setup environment
+Let's create 2 folders inside the repo, one for the data and one for the model exportation after training
+```
+mkdir data
+mkdir model
+```
 We download and unzip the csv files for [Book-Crossing dataset](http://www2.informatik.uni-freiburg.de/~cziegler/BX/) 
 into `data` folder. Then we create a python 2.7 virtual environment and we activate it:
 ```
