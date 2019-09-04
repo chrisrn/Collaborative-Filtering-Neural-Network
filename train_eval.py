@@ -17,6 +17,11 @@ warnings.filterwarnings('ignore')
 
 
 def data_processing(args):
+    """
+    Function for processing and splitting the data
+    :param args: dictionary with parameters from params.json file
+    :return: dataframes from train-test-validation sets and 2 integes with unique number of users and books
+    """
 
     print('Data processing started...')
 
@@ -58,6 +63,10 @@ def data_processing(args):
 
 
 def main():
+    """
+    Main function
+    """
+
     with open('params.json') as json_file:
         args = json.load(json_file)
 

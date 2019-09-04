@@ -16,6 +16,16 @@ class DataHandler(object):
                  test_split,
                  validation_split,
                  multiple_isbn_pickle):
+        """
+        Initialization function for all the parameters related to dataset
+        :param data_dir: str path where all the csv files are stored
+        :param clean_titles: boolean indicator for removing ';' symbol from book_title column
+        :param debug_data: boolean indicator for using a small sample of data for debugging
+        :param debug_rows: int size of debugging data
+        :param test_split: float percentage of test set
+        :param validation_split: float percentage of validation set
+        :param multiple_isbn_pickle: boolean indicator for pickle file creation for the unique isbns
+        """
         self.data_dir = data_dir
         self.clean_titles = clean_titles
         self.debug_data = debug_data
@@ -30,6 +40,11 @@ class DataHandler(object):
         self.books_new = os.path.join(self.data_dir, 'BX-Books-new.csv')
 
     def rewrite_books(self):
+        """
+        Function for removing the ';' symbol from book_title column and recreate
+        a new BX-Books-new.csv file. We remove this symbol because the delimiter is also
+        ';' and we cannot construct the dataframe correctly.
+        """
         with open(self.books_file, 'rb') as f:
             reader = csv.reader(f, delimiter=";")
             lines = list(reader)
@@ -44,6 +59,10 @@ class DataHandler(object):
                 writer.writerow(line)
 
     def read_data(self):
+        """
+        Function for dataframes creation from csv files
+        :return: dataframes of ratings, books and users
+        """
 
         if self.clean_titles:
             self.rewrite_books()
@@ -60,6 +79,11 @@ class DataHandler(object):
         return ratings, books, users
 
     def users_processing(self, users):
+        """
+        Function for processing the users dataframe
+        :param users: dataframe of users
+        :return: new version of dataframe of users
+        """
         # Change column names for our needs
         users.columns = users.columns.str.strip().str.lower().str.replace('-', '_')
         # Convert unrealistic ages to NaN
@@ -75,6 +99,11 @@ class DataHandler(object):
         return users
 
     def books_processing(self, books):
+        """
+        Function for processing the books dataframe
+        :param books: dataframe of books
+        :return: new version of dataframe of books
+        """
 
         # Drop unused columns
         books.drop(columns=['Image-URL-S', 'Image-URL-M', 'Image-URL-L'], inplace=True)
@@ -95,6 +124,11 @@ class DataHandler(object):
         return books
 
     def ratings_processing(self, ratings):
+        """
+        Function for processing the ratings dataframe
+        :param ratings: dataframe of ratings
+        :return: new version of dataframe of ratings
+        """
 
         ratings.columns = ratings.columns.str.strip().str.lower().str.replace('-', '_')
 
@@ -104,6 +138,14 @@ class DataHandler(object):
         return ratings
 
     def make_isbn_dict(self, df, has_mult_isbns):
+        """
+        Function for creating a dictionary with title keys containing
+        the list of different isbns per title.
+        :param df: dataframe for titles and isbns extraction
+        :param has_mult_isbns: boolean indicator for having multiple isbns or not
+        :return: dictionary with titles and list of isbns per title
+        """
+
         title_isbn_dict = {}
         for title in has_mult_isbns.index:
             isbn_series = df.loc[df.book_title == title].isbn.unique()
@@ -111,6 +153,14 @@ class DataHandler(object):
         return title_isbn_dict
 
     def get_dataset(self, users, books, ratings):
+        """
+        Function for processing each dataframe and contructing the final dataframe
+        for training and evaluation
+        :param users: dataframe of users
+        :param books: dataframe of books
+        :param ratings: dataframe of ratings
+        :return: dataframe of final dataset
+        """
 
         books_with_ratings = ratings.join(books.set_index('isbn'), on='isbn')
 
@@ -143,6 +193,11 @@ class DataHandler(object):
         return dataset
 
     def split_data(self, dataset):
+        """
+        Function for splitting the dataset dataframe into train-test-validation
+        :param dataset: dataframe of all the data
+        :return: dataframes for train-test-validation data
+        """
         train, test = train_test_split(dataset, test_size=self.test_split)
         train, validation = train_test_split(train, test_size=self.validation_split)
 

@@ -42,6 +42,13 @@ import os
 class LRlogs(keras.callbacks.Callback):
 
     def on_epoch_begin(self, epoch, logs=None):
+        """
+        Function for printing the learning rate during training
+        :param epoch: int epoch number
+        :param logs: str for stdout
+        :return: None
+        """
+
         lr = K.eval(self.model.optimizer.lr)
         print('learning_rate: {}'.format(lr))
 
@@ -67,6 +74,29 @@ class ModelHandler(object):
                  num_epochs_per_decay,
                  lr_decay_factor,
                  gpus):
+        """
+        Initialization function for all the parameters related to model
+        :param batch_size: int batch size
+        :param epochs: int number of epochs
+        :param learning_rate: float learning rate
+        :param n_users: int unique number of users
+        :param n_books: int unique number of books
+        :param adaptive_lr: boolean indicator for using adaptive learning rate callback
+        :param adaptive_lr_patience_epochs: int number of patience epochs until the decrease of lr
+        :param adaptive_lr_decay: float factor of lr decrease
+        :param min_adaptive_lr: float minimun lr to reach
+        :param early_stopping: boolean indicator for using early stopping callback
+        :param early_stopping_min_change: float minimum delta between min val_loss and current val_loss
+        :param early_stopping_patience_epochs: int number of patience epochs until the end of training
+        :param save_model: boolean indicator for saving the model into .hdf5 file
+        :param model_dir: str path to save the model
+        :param epochs_per_save: int number of epochs per model save
+        :param exponential_lr: boolean indicator for using exponential learning rate callback
+        :param num_epochs_per_decay: int number of epochs per lr decay
+        :param lr_decay_factor: float factor of lr decrease
+        :param gpus: int number of gpus
+        """
+
         self.batch_size = batch_size
         self.epochs = epochs
         self.learning_rate = learning_rate
@@ -88,6 +118,11 @@ class ModelHandler(object):
         self.gpus = gpus
 
     def get_callbacks(self):
+        """
+        Function for filling the keras callbacks list
+        :return: list with keras callbacks
+        """
+
         callbacks = []
 
         if self.adaptive_lr:
@@ -135,6 +170,10 @@ class ModelHandler(object):
         return callbacks
 
     def get_model(self):
+        """
+        Function for model graph construction
+        :return: keras model object
+        """
 
         n_latent_factors_user = 15
         n_latent_factors_book = 20
@@ -196,6 +235,11 @@ class ModelHandler(object):
 
 
 def plot_loss(History):
+    """
+    Function for plotting train-validation loss
+    :param History: keras model fit object
+    """
+
     plt.plot(History.history['loss'], 'g')
     plt.plot(History.history['val_loss'], 'b')
     plt.title('model loss')
